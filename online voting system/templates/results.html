@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Results · VoteNow{% endblock %}
+{% block extra_style %}
+
+{% endblock %}
+{% block content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+  <div>
+    <h1>Election Results</h1>
+    <p class="subtitle" style="margin-bottom:.2rem;">Live vote counts</p>
+    <span class="refresh-badge" id="refreshStatus">🔄 Auto-refreshing every 10 seconds...</span>
+  </div>
+  <a href="{{ url_for('vote') }}" class="btn btn-secondary">← Back to Vote</a>
+</div>
+
+<div class="total-box" id="totalBox">
+  <div class="total-num" id="totalCount">{{ total }}</div>
+  <div class="total-label">Total Votes Cast</div>
+</div>
+
+<div class="results-list" id="resultsList">
+  {% if candidates %}
+    {% for c in candidates %}
+    {% set pct = ((c.votes / total * 100) | round(1)) if total > 0 else 0 %}
+    {% set i = loop.index0 %}
+    <div class="result-row">
+      <div class="result-top">
+        <div>
+          <span class="result-name">{{ c.name }}</span>
+          {% if i == 0 and c.votes > 0 %}<span class="leader-badge">Leading</span>{% endif %}
+          {% if c.party %}<div class="result-party">{{ c.party }}</div>{% endif %}
+        </div>
+        <div>
+          <span class="result-count">{{ c.votes }} votes</span>
+          <span class="result-pct">{{ pct }}%</span>
+        </div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="{{ pct }}"></div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="card" style="text-align:center;padding:3rem;">
+    <p style="color:var(--brown);">No candidates added yet.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// ── Auto-refresh results every 10 seconds ──────────────────────────────────
+function refreshResults() {
+  fetch('/results/data')
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return;
+
+      // Update total
+      document.getElementById('totalCount').textContent = data.total;
+
+      // Rebuild results list
+      const list = document.getElementById('resultsList');
+      if (!data.candidates.length) return;
+
+      list.innerHTML = data.candidates.map((c, i) => {
+        const pct = data.total > 0 ? ((c.votes / data.total) * 100).toFixed(1) : 0;
+        const leading = i === 0 && c.votes > 0
+          ? '<span class="leader-badge">Leading</span>' : '';
+        const party = c.party
+          ? `<div class="result-party">${c.party}</div>` : '';
+        return `
+          <div class="result-row">
+            <div class="result-top">
+              <div>
+                <span class="result-name">${c.name}</span>${leading}
+                ${party}
+              </div>
+              <div>
+                <span class="result-count">${c.votes} votes</span>
+                <span class="result-pct">${pct}%</span>
+              </div>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Update timestamp
+      const now = new Date();
+      document.getElementById('refreshStatus').textContent =
+        `🔄 Last updated: ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    })
+    .catch(() => {
+      document.getElementById('refreshStatus').textContent = '⚠️ Could not refresh — retrying...';
+    });
+}
+
+// Run every 10 seconds
+setInterval(refreshResults, 10000);
+</script>
+{% endblock %}

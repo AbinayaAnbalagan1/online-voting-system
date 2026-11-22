@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Vote · VoteNow{% endblock %}
+{% block extra_style %}
+
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Cast Your Vote</h1>
+  <p class="subtitle">Select one candidate and submit your vote. You can only vote once.</p>
+</div>
+
+{% if already_voted %}
+<div class="voted-banner">
+  <div class="icon">🗳️</div>
+  <h2 style="margin-bottom:.3rem;">You've already voted!</h2>
+  <p>Your vote has been recorded. Thank you for participating.</p>
+  <a href="{{ url_for('results') }}" class="btn btn-primary" style="margin-top:1rem;">View Results</a>
+</div>
+{% elif candidates %}
+<form method="POST">
+  <div class="candidates-grid" id="candidateGrid">
+    {% for c in candidates %}
+    <label class="candidate-card" for="c{{ c.id }}" id="card{{ c.id }}">
+      <input type="radio" name="candidate_id" id="c{{ c.id }}" value="{{ c.id }}"
+             onchange="selectCard({{ c.id }})">
+      <div class="candidate-avatar">{{ c.name[0].upper() }}</div>
+      <div class="candidate-name">{{ c.name }}</div>
+      {% if c.party %}<div class="candidate-party">{{ c.party }}</div>{% endif %}
+      {% if c.description %}<div class="candidate-desc">{{ c.description }}</div>{% endif %}
+    </label>
+    {% endfor %}
+  </div>
+  <button type="submit" class="btn btn-primary" style="padding:.85rem 2.5rem;">Submit Vote →</button>
+</form>
+{% else %}
+<div class="card" style="text-align:center;padding:3rem;">
+  <div style="font-size:2.5rem;margin-bottom:1rem;">🗳️</div>
+  <h2>No candidates yet</h2>
+  <p style="color:var(--brown);font-size:.9rem;">Please wait for the admin to add candidates.</p>
+</div>
+{% endif %}
+
+<script>
+function selectCard(id) {
+  document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('card' + id).classList.add('selected');
+}
+</script>
+{% endblock %}

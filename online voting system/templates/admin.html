@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Admin · VoteNow{% endblock %}
+{% block extra_style %}
+{% endblock %}
+{% block content %}
+<div style="margin-bottom:2rem;">
+  <h1>Admin Panel</h1>
+  <p class="subtitle" style="margin-bottom:0;">Manage candidates and election settings</p>
+</div>
+
+<div class="admin-grid">
+  <!-- Add Candidate -->
+  <div class="card">
+    <div class="section-title">Add Candidate</div>
+    <form method="POST">
+      <input type="hidden" name="action" value="add">
+      <label>Full Name *</label>
+      <input type="text" name="name" placeholder="Candidate name" required>
+      <label>Party / Group</label>
+      <input type="text" name="party" placeholder="e.g. Independent">
+      <label>Short Description</label>
+      <textarea name="description" rows="3" placeholder="Brief bio or platform..." style="resize:vertical;"></textarea>
+      <button type="submit" class="btn btn-primary">Add Candidate</button>
+    </form>
+  </div>
+  <div class="card">
+    <div class="section-title">Candidates ({{ candidates|length }})</div>
+    {% if candidates %}
+    <table>
+      <tr><th>Name</th><th>Party</th><th>Votes</th><th></th></tr>
+      {% for c in candidates %}
+      <tr>
+        <td><strong>{{ c.name }}</strong></td>
+        <td><span class="badge">{{ c.party or '—' }}</span></td>
+        <td>{{ c.votes }}</td>
+        <td>
+          <form method="POST" style="display:inline;" onsubmit="return confirm('Remove {{ c.name }}?')">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="candidate_id" value="{{ c.id }}">
+            <button type="submit" class="btn btn-danger" style="padding:.3rem .7rem;font-size:.75rem;">✕</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p style="color:var(--brown);font-size:.9rem;">No candidates yet. Add one on the left!</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card" style="margin-top:1.5rem;">
+  <div class="section-title">Registered Voters ({{ users|length }})</div>
+  {% if users %}
+  <table>
+    <tr><th>Username</th><th>Email</th><th>Status</th></tr>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.username }}</td>
+      <td style="color:var(--brown);font-size:.85rem;">{{ u.email or '—' }}</td>
+      <td>
+        {% if u.voted %}
+        <span class="badge" style="background:#d4edda;color:#4A7C59;">Voted ✓</span>
+        {% else %}
+        <span class="badge">Not voted</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p style="color:var(--brown);font-size:.9rem;">No voters registered yet.</p>
+  {% endif %}
+</div>
+
+<div class="card" style="margin-top:1.5rem;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <div class="section-title" style="margin-bottom:0;">📋 Audit Log</div>
+    <span style="font-size:.78rem;color:var(--brown);">Last 50 actions</span>
+  </div>
+  {% if logs %}
+  <div>
+    {% for log in logs %}
+    <div class="log-row">
+      <span class="log-time">{{ log.timestamp }}</span>
+      <span class="log-user">{{ log.username }}</span>
+      <span class="log-action">{{ log.action }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:var(--brown);font-size:.9rem;">No activity recorded yet.</p>
+  {% endif %}
+</div>
+
+<div class="danger-zone">
+  <h3>⚠️ Danger Zone</h3>
+  <p>This will reset ALL votes to zero and allow every user to vote again.</p>
+  <form method="POST" onsubmit="return confirm('Reset ALL votes? This cannot be undone.')">
+    <input type="hidden" name="action" value="reset">
+    <button type="submit" class="btn btn-danger">Reset All Votes</button>
+  </form>
+</div>
+
+<div style="margin-top:1.5rem;">
+  <a href="{{ url_for('results') }}" class="btn btn-secondary">📊 View Live Results</a>
+</div>
+{% endblock %}

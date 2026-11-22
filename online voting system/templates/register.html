@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Register · VoteNow{% endblock %}
+{% block extra_style %}
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-title">Create account</div>
+    <div class="auth-sub">Register to participate in the election</div>
+    <form method="POST">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Choose a username" required autofocus>
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Choose a password" required>
+      <label>Email <span style="color:var(--brown);font-weight:300;">(optional — for OTP login)</span></label>
+      <input type="email" name="email" placeholder="your@email.com">
+      <p class="email-note">📧 If you add an email, you'll receive a one-time password each time you log in for extra security.</p>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:.85rem;">Create Account</button>
+    </form>
+    <div class="auth-footer">
+      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

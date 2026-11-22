@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Verify OTP · VoteNow{% endblock %}
+{% block extra_style %}
+
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-title">Check your email</div>
+    <div class="auth-sub">We sent a 6-digit OTP to your registered email address.</div>
+    <form method="POST">
+      <label>Enter OTP</label>
+      <input type="text" name="otp" class="otp-input" maxlength="6"
+             placeholder="······" required autofocus
+             style="margin-bottom:1.5rem;">
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:.85rem;">
+        Verify & Login →
+      </button>
+    </form>
+    <div class="resend-link">
+      Didn't receive it? <a href="{{ url_for('resend_otp') }}">Resend OTP</a>
+      &nbsp;·&nbsp; <a href="{{ url_for('login') }}">Back to Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
