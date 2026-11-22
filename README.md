@@ -103,5 +103,5 @@ Change this password before using the system outside a test environment.
 
 ## Author
 
-**Abi R**
+**Abinaya Anbalagan**
 B.E. Computer Science and Engineering, Paavai Engineering College
